@@ -7,7 +7,7 @@ Because Beeg is a fucking awesome website.
 
 ## How to use ?
 
-```
+```csharp
 //Declare new BeegVideo
 BeegVideo video = new BeegVideo("7241201");
 
