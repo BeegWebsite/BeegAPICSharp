@@ -119,9 +119,9 @@ namespace BeegAPI
             return date;
         }
 
-        public String getID()
+        private void downloadFromLink(String urlStr, String file)
         {
-            return ID;
+
         }
 
     }
