@@ -31,13 +31,18 @@ namespace BeegAPI
             client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(ProgressChanged);
         }
 
-        public void Download(String path, BeegVideo.BeegQuality quality)
+        public BeegVideo getVideo()
+        {
+            return video;
+        }
+
+        public void download(String path, BeegVideo.BeegQuality quality)
         {
             if(!client.IsBusy)
                 client.DownloadFileAsync(new Uri(video.getURL(quality)), path + "/" + ID + ".mp4");
         }
 
-        public void Download(String path, String name, BeegVideo.BeegQuality quality)
+        public void download(String path, String name, BeegVideo.BeegQuality quality)
         {
             if (!client.IsBusy)
                 client.DownloadFileAsync(new Uri(video.getURL(quality)), path + "/" + name + ".mp4");
