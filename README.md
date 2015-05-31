@@ -52,7 +52,7 @@ videoDownloader.downloadProgress += videoDownloader_downloadProgress;
 videoDownloader.downloadFinish += videoDownloader_downloadFinish;
 
 //Start the download
-videoDownloader.Download("C:/downloads", BeegVideo.BeegQuality.Good);
+videoDownloader.download("C:/downloads", videoDownloader.getVideo().getBestQuality());
 
 //Download progress event
 static void videoDownloader_downloadProgress(object sender, System.Net.DownloadProgressChangedEventArgs e)
