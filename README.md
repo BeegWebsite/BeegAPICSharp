@@ -13,6 +13,9 @@ Because Beeg is a fucking awesome website.
 //Declare new BeegVideo
 BeegVideo video = new BeegVideo("7241201");
 
+//Load all information
+video.load();
+
 //Show the ID of the video
 Console.WriteLine("Video ID : " + video.getID());
 
@@ -34,11 +37,14 @@ Console.WriteLine("Video URL : " + video.getURL(BeegVideo.BeegQuality.Good));
 //Show the thumbnail URL
 Console.WriteLine("Thumbnail URL : " + video.getThumbnailURL());
 
-//Show the best quality available (fast/good/best)
-Console.WriteLine("Best quality available : " + video.getBestQuality());
-
 //Get the thumbnail URL as a bitmap and save it
 video.getThumbnail().Save("image.png");
+
+//Show the best quality available (fast/good/best or null if error)
+Console.WriteLine("Best quality (BeegQuality) : " + video.getBestQuality());
+
+//Show the best quality available (240/480/720 or -1 if error)
+Console.WriteLine("Best quality (pixels) : " + video.getBestQualityInPixels());
 ```
 
 #### • BeegVideoDownloader
@@ -46,6 +52,8 @@ video.getThumbnail().Save("image.png");
 ```csharp
 //Declare new BeegVideoDownloader
 BeegVideoDownloader videoDownloader = new BeegVideoDownloader("7241201");
+//Or
+BeegVideoDownloader videoDownloader = new BeegVideoDownloader(new BeegVideo("7241201"));
 
 //Add events to invoke
 videoDownloader.downloadProgress += videoDownloader_downloadProgress;
