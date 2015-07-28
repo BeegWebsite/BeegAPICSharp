@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BeegAPI
 {
@@ -19,10 +15,25 @@ namespace BeegAPI
 
         private BeegVideo video;
 
+        private int percentage, nperc;
+
+        public BeegVideoDownloader(BeegVideo video)
+        {
+            this.video = video;
+            ID = this.video.getID();
+            load();
+        }
+
         public BeegVideoDownloader(String ID)
         {
             this.ID = ID;
             video = new BeegVideo(ID);
+            load();
+        }
+
+        private void load()
+        {
+            video.load();
             client = new WebClient();
             client.Proxy = null;
             downloadFinish = null;
@@ -54,9 +65,16 @@ namespace BeegAPI
         }
 
         private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-        {   
-            if(downloadProgress != null)
-                downloadProgress.Invoke(sender, e);
+        {
+            if (downloadProgress != null)
+            {
+                nperc = e.ProgressPercentage;
+                if (nperc != percentage)
+                {
+                    downloadProgress.Invoke(sender, e);
+                }
+                percentage = nperc;
+            }
         }
 
         private void Completed(object sender, AsyncCompletedEventArgs e)

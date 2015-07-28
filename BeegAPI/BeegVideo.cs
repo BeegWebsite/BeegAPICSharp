@@ -11,32 +11,42 @@ namespace BeegAPI
         private string ID;
         private string source;
 
-        public enum BeegQuality
-        {
-            Best,
-            Good,
-            Fast
-        }
+        public enum BeegQuality { Best, Good, Fast, Null }
 
         public BeegVideo(String ID)
         {
             this.ID = ID;
-            WebClient client = new WebClient();
-            client.Proxy = null;
-            source = client.DownloadString("http://beeg.com/" + ID);
-            client.Dispose();
+        }
+
+        public void load()
+        {
+            if (!loaded())
+            {
+                WebClient client = new WebClient();
+                client.Proxy = null;
+                source = client.DownloadString("http://beeg.com/" + ID);
+                client.Dispose();
+            }
         }
 
         public String getTitle()
         {
-            string title = Regex.Match(source, @"<title>(.*)</title>", RegexOptions.IgnoreCase).Groups[1].Value;
-            return title.Substring(0, title.Length - 8);
+            if (loaded())
+            {
+                string title = Regex.Match(source, @"<title>(.*)</title>", RegexOptions.IgnoreCase).Groups[1].Value;
+                return title.Substring(0, title.Length - 8);
+            }
+            return null;
         }
 
         public String getDescription()
         {
-            string description = Regex.Match(source, @"<td class=""synopsis more"" colspan=""2"">(.*)</td>", RegexOptions.IgnoreCase).Groups[1].Value;
-            return description;
+            if (loaded())
+            {
+                string description = Regex.Match(source, @"<td class=""synopsis more"" colspan=""2"">(.*)</td>", RegexOptions.IgnoreCase).Groups[1].Value;
+                return description;
+            }
+            return null;
         }
 
         public Bitmap getThumbnail()
@@ -69,59 +79,86 @@ namespace BeegAPI
 
         public BeegQuality getBestQuality()
         {
-            Match match = new Regex("'720p': '(.*)'").Match(source);
-            if (match.Success)
-                return BeegQuality.Best;
-            match = new Regex("'480p': '(.*)'").Match(source);
-            if (match.Success)
-                return BeegQuality.Good;
-            return BeegQuality.Fast;
+            if (loaded())
+            {
+                Match match = new Regex("'720p': '(.*)'").Match(source);
+                if (match.Success)
+                    return BeegQuality.Best;
+                match = new Regex("'480p': '(.*)'").Match(source);
+                if (match.Success)
+                    return BeegQuality.Good;
+                return BeegQuality.Fast;
+            }
+            return BeegQuality.Null;
         }
 
         public int getBestQualityInPixels()
         {
-            BeegQuality bq = getBestQuality();
-            return ((bq == BeegQuality.Best) ? 720 : ((bq == BeegQuality.Good) ? 480 : 240));
+            if (loaded())
+            {
+                BeegQuality bq = getBestQuality();
+                return ((bq == BeegQuality.Best) ? 720 : ((bq == BeegQuality.Good) ? 480 : 240));
+            }
+            return -1;
         }
 
         public String getURL(BeegQuality quality)
         {
-            string url = "";
-            if (quality == BeegQuality.Best)
+            if (loaded())
             {
-                Match matcher = new Regex("'720p': '(.*)'").Match(source);
-                if (matcher.Success)
+                string url = "";
+                if (quality == BeegQuality.Best)
+                {
+                    Match matcher = new Regex("'720p': '(.*)'").Match(source);
+                    if (matcher.Success)
+                        url = matcher.Groups[1].Value;
+                }
+                if (quality == BeegQuality.Good || (url == "" && quality == BeegQuality.Best))
+                {
+                    Match matcher = new Regex("'480p': '(.*)'").Match(source);
+                    if (matcher.Success)
+                        url = matcher.Groups[1].Value;
+                }
+                if (quality == BeegQuality.Fast || url == "")
+                {
+                    Match matcher = new Regex("'240p': '(.*)'").Match(source);
                     url = matcher.Groups[1].Value;
+                }
+                return url;
             }
-            if (quality == BeegQuality.Good || (url == "" && quality == BeegQuality.Best))
-            {
-                Match matcher = new Regex("'480p': '(.*)'").Match(source);
-                if (matcher.Success)
-                    url = matcher.Groups[1].Value;
-            }
-            if (quality == BeegQuality.Fast || url == "")
-            {
-                Match matcher = new Regex("'240p': '(.*)'").Match(source);
-                url = matcher.Groups[1].Value;
-            }
-            return url;
+            return null;
         }
 
         public String getCasting()
         {
-            string cast = Regex.Match(source, @"<th>Cast</th>\s*<td>(.*)</td>", RegexOptions.IgnoreCase).Groups[1].Value;
-            return cast;
+            if (loaded())
+            {
+                string cast = Regex.Match(source, @"<th>Cast</th>\s*<td>(.*)</td>", RegexOptions.IgnoreCase).Groups[1].Value;
+                return cast;
+            }
+            return null;
         }
 
         public String getPublishedDate()
         {
-            string date = Regex.Match(source, @"<th>Published</th>\s*<td>(.*)</td>", RegexOptions.IgnoreCase).Groups[1].Value;
-            return date;
+            if (loaded())
+            {
+                string date = Regex.Match(source, @"<th>Published</th>\s*<td>(.*)</td>", RegexOptions.IgnoreCase).Groups[1].Value;
+                return date;
+            }
+            return null;
         }
 
         public String getID()
         {
             return ID;
+        }
+
+        private bool loaded()
+        {
+            if (source == null)
+                return false;
+            return true;
         }
 
     }

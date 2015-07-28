@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace BeegAPI
 {
@@ -18,7 +14,7 @@ namespace BeegAPI
             client.Proxy = null;
             string source = client.DownloadString("http://beeg.com/page-" + pageNumber);
             client.Dispose();
-            IDList = Regex.Match(source, @"var tumbid  =\[(.*)\];", RegexOptions.IgnoreCase).Groups[1].Value.Split(',');
+            IDList = Regex.Match(source, @"var tumb_id  =\[(.*)\];", RegexOptions.IgnoreCase).Groups[1].Value.Split(',');
             return IDList;
         }
 
@@ -29,7 +25,7 @@ namespace BeegAPI
             client.Proxy = null;
             string source = client.DownloadString("http://beeg.com/tag/" + tag.ToString().Replace("nbr_", "").Replace("_", "+").ToLower() + "/page-" + pageNumber);
             client.Dispose();
-            IDList = Regex.Match(source, @"var tumbid  =\[(.*)\];", RegexOptions.IgnoreCase).Groups[1].Value.Split(',');
+            IDList = Regex.Match(source, @"var tumb_id  =\[(.*)\];", RegexOptions.IgnoreCase).Groups[1].Value.Split(',');
             return IDList;
         }
 
@@ -40,7 +36,7 @@ namespace BeegAPI
             client.Proxy = null;
             string source = client.DownloadString("http://beeg.com/search?q=" + search + "&page=" + pageNumber);
             client.Dispose();
-            IDList = Regex.Match(source, @"var tumbid  =\[(.*)\];", RegexOptions.IgnoreCase).Groups[1].Value.Split(',');
+            IDList = Regex.Match(source, @"var tumb_id  =\[(.*)\];", RegexOptions.IgnoreCase).Groups[1].Value.Split(',');
             return IDList;
         }
 
