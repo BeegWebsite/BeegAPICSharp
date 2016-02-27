@@ -1,165 +1,135 @@
-﻿using System;
+﻿using BeegAPI.Json;
+using Newtonsoft.Json;
 using System.Drawing;
-using System.IO;
 using System.Net;
-using System.Text.RegularExpressions;
 
 namespace BeegAPI
 {
     public class BeegVideo
     {
-        private string ID;
-        private string source;
+        string ID, source;
+        JsonBeegVideo json;
 
         public enum BeegQuality { Best, Good, Fast, Null }
 
-        public BeegVideo(String ID)
+        public BeegVideo(string ID)
         {
             this.ID = ID;
         }
 
-        public void load()
+        public void Load()
         {
-            if (!loaded())
+            if (!Loaded())
             {
-                WebClient client = new WebClient();
-                client.Proxy = null;
-                source = client.DownloadString("http://beeg.com/" + ID);
-                client.Dispose();
+                using (WebClient wc = new WebClient())
+                {
+                    wc.Proxy = null;
+                    source = wc.DownloadString("http://api.beeg.com/api/v5/video/" + ID)
+                        .Replace("\"720p\":", "\"p720\":")
+                    .Replace("\"480p\":", "\"p480\":")
+                    .Replace("\"240p\":", "\"p240\":");
+                }
+                json = JsonConvert.DeserializeObject<JsonBeegVideo>(source);
             }
         }
 
-        public String getTitle()
+        public string GetTitle()
         {
-            if (loaded())
-            {
-                string title = Regex.Match(source, @"<title>(.*)</title>", RegexOptions.IgnoreCase).Groups[1].Value;
-                return title.Substring(0, title.Length - 8);
-            }
+            if (Loaded())
+                return json.title;
             return null;
         }
 
-        public String getDescription()
+        public string GetDescription()
         {
-            if (loaded())
-            {
-                string description = Regex.Match(source, @"<td class=""synopsis more"" colspan=""2"">(.*)</td>", RegexOptions.IgnoreCase).Groups[1].Value;
-                return description;
-            }
+            if (Loaded())
+                return json.desc;
             return null;
         }
 
-        public Bitmap getThumbnail()
+        public Bitmap GetThumbnail()
         {
-            WebRequest request = WebRequest.Create("http://img.beeg.com/236x177/" + ID + ".jpg");
-            WebResponse response = request.GetResponse();
-            Stream responseStream = response.GetResponseStream();
-            Bitmap bitmap = new Bitmap(responseStream);
-            return bitmap;
+            return new Bitmap(WebRequest.Create("http://img.beeg.com/236x177/" + ID + ".jpg").GetResponse().GetResponseStream());
         }
 
-        public Bitmap getThumbnail(int width, int height)
+        public Bitmap GetThumbnail(int width, int height)
         {
-            WebRequest request = WebRequest.Create("http://img.beeg.com/" + width + "x" + height + "/" + ID + ".jpg");
-            WebResponse response = request.GetResponse();
-            Stream responseStream = response.GetResponseStream();
-            Bitmap bitmap = new Bitmap(responseStream);
-            return bitmap;
+            return new Bitmap(WebRequest.Create("http://img.beeg.com/" + width + "x" + height + "/" + ID + ".jpg").GetResponse().GetResponseStream());
         }
 
-        public String getThumbnailURL()
+        public string GetThumbnailURL()
         {
             return "http://img.beeg.com/236x177/" + ID + ".jpg";
         }
 
-        public String getThumbnailURL(int width, int height)
+        public string GetThumbnailURL(int width, int height)
         {
             return "http://img.beeg.com/" + width + "x" + height + "/" + ID + ".jpg";
         }
 
-        public BeegQuality getBestQuality()
+        public BeegQuality GetBestQuality()
         {
-            if (loaded())
+            if (Loaded())
             {
-                Match match = new Regex("'720p': '(.*)'").Match(source);
-                if (match.Success)
+                if (json.p720 != null)
                     return BeegQuality.Best;
-                match = new Regex("'480p': '(.*)'").Match(source);
-                if (match.Success)
+                if (json.p480 != null)
                     return BeegQuality.Good;
-                return BeegQuality.Fast;
+                if (json.p240 != null)
+                    return BeegQuality.Fast;
             }
             return BeegQuality.Null;
         }
 
-        public int getBestQualityInPixels()
+        public int GetBestQualityInPixels()
         {
-            if (loaded())
+            if (Loaded())
             {
-                BeegQuality bq = getBestQuality();
+                BeegQuality bq = GetBestQuality();
                 return ((bq == BeegQuality.Best) ? 720 : ((bq == BeegQuality.Good) ? 480 : 240));
             }
             return -1;
         }
 
-        public String getURL(BeegQuality quality)
+        public string GetURL(BeegQuality quality)
         {
-            if (loaded())
+            if (Loaded())
             {
-                string url = "";
+                string url = null;
                 if (quality == BeegQuality.Best)
-                {
-                    Match matcher = new Regex("'720p': '(.*)'").Match(source);
-                    if (matcher.Success)
-                        url = matcher.Groups[1].Value;
-                }
+                    url = json.p720;
                 if (quality == BeegQuality.Good || (url == "" && quality == BeegQuality.Best))
-                {
-                    Match matcher = new Regex("'480p': '(.*)'").Match(source);
-                    if (matcher.Success)
-                        url = matcher.Groups[1].Value;
-                }
+                    url = json.p480;
                 if (quality == BeegQuality.Fast || url == "")
-                {
-                    Match matcher = new Regex("'240p': '(.*)'").Match(source);
-                    url = matcher.Groups[1].Value;
-                }
-                return url;
+                    url = json.p240;
+                return "http://" + url.Substring(2).Replace("{DATA_MARKERS}", "data=pc");
             }
             return null;
         }
 
-        public String getCasting()
+        public string GetCasting()
         {
-            if (loaded())
-            {
-                string cast = Regex.Match(source, @"<th>Cast</th>\s*<td>(.*)</td>", RegexOptions.IgnoreCase).Groups[1].Value;
-                return cast;
-            }
+            if(Loaded())
+                return json.cast;
             return null;
         }
 
-        public String getPublishedDate()
+        public string GetPublishedDate()
         {
-            if (loaded())
-            {
-                string date = Regex.Match(source, @"<th>Published</th>\s*<td>(.*)</td>", RegexOptions.IgnoreCase).Groups[1].Value;
-                return date;
-            }
+            if (Loaded())
+                return json.date;
             return null;
         }
 
-        public String getID()
+        public string GetID()
         {
             return ID;
         }
 
-        private bool loaded()
+        public bool Loaded()
         {
-            if (source == null)
-                return false;
-            return true;
+            return json != null;
         }
-
     }
+
 }

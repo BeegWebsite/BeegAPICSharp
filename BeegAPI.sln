@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeegAPI", "BeegAPI\BeegAPI.csproj", "{2F5A22F5-074D-4EFB-AEC1-F8F7703F10FC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeegAPI", "BeegAPI\BeegAPI.csproj", "{0B110188-5433-4862-AA85-A7357DB92AA4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2F5A22F5-074D-4EFB-AEC1-F8F7703F10FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2F5A22F5-074D-4EFB-AEC1-F8F7703F10FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2F5A22F5-074D-4EFB-AEC1-F8F7703F10FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2F5A22F5-074D-4EFB-AEC1-F8F7703F10FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B110188-5433-4862-AA85-A7357DB92AA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B110188-5433-4862-AA85-A7357DB92AA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B110188-5433-4862-AA85-A7357DB92AA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B110188-5433-4862-AA85-A7357DB92AA4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

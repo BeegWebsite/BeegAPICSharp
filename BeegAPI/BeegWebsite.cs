@@ -1,415 +1,115 @@
-﻿using System;
+﻿using BeegAPI.Json;
+using Newtonsoft.Json;
 using System.Net;
-using System.Text.RegularExpressions;
 
 namespace BeegAPI
 {
     public static class BeegWebsite
     {
-
-        public static String[] getIDListFromPage(int pageNumber)
+        public static string[] GetIDListFromPage(int pageNumber)
         {
-            String[] IDList;
-            WebClient client = new WebClient();
-            client.Proxy = null;
-            string source = client.DownloadString("http://beeg.com/page-" + pageNumber);
-            client.Dispose();
-            IDList = Regex.Match(source, @"var tumb_id  =\[(.*)\];", RegexOptions.IgnoreCase).Groups[1].Value.Split(',');
-            return IDList;
+            string[] result;
+            string content = GetSource("http://api.beeg.com/api/v5/index/main/" + pageNumber + "/pc");
+            JsonBeegWebsite jsonResult = JsonConvert.DeserializeObject<JsonBeegWebsite>(content);
+            result = new string[CountStringOccurrences(content, "{\"title\":")];
+            for (int i = 0; i < result.Length; i++)
+                result[i] = jsonResult.videos[i].id;
+            return result;
         }
 
-        public static String[] getIDListFromPage(int pageNumber, BeegTag tag)
+        public static string[] GetIDListFromPageSearch(int pageNumber, string search)
         {
-            String[] IDList;
-            WebClient client = new WebClient();
-            client.Proxy = null;
-            string source = client.DownloadString("http://beeg.com/tag/" + tag.ToString().Replace("nbr_", "").Replace("_", "+").ToLower() + "/page-" + pageNumber);
-            client.Dispose();
-            IDList = Regex.Match(source, @"var tumb_id  =\[(.*)\];", RegexOptions.IgnoreCase).Groups[1].Value.Split(',');
-            return IDList;
+            string[] result;
+            string content = GetSource("http://api.beeg.com/api/v5/index/search/" + pageNumber + "/pc?query=" + search);
+            JsonBeegWebsite jsonResult = JsonConvert.DeserializeObject<JsonBeegWebsite>(content);
+            result = new string[CountStringOccurrences(content, "{\"title\":")];
+            for (int i = 0; i < result.Length; i++)
+                result[i] = jsonResult.videos[i].id;
+            return result;
         }
 
-        public static String[] getIDListFromPage(int pageNumber, string search)
+        public static string[] GetIDListFromPageTag(int pageNumber, string tag)
         {
-            String[] IDList;
-            WebClient client = new WebClient();
-            client.Proxy = null;
-            string source = client.DownloadString("http://beeg.com/search?q=" + search + "&page=" + pageNumber);
-            client.Dispose();
-            IDList = Regex.Match(source, @"var tumb_id  =\[(.*)\];", RegexOptions.IgnoreCase).Groups[1].Value.Split(',');
-            return IDList;
+            string[] result;
+            string content = GetSource("http://api.beeg.com/api/v5/index/tag/" + pageNumber + "/pc?tag=" + tag);
+            JsonBeegWebsite jsonResult = JsonConvert.DeserializeObject<JsonBeegWebsite>(content);
+            result = new string[CountStringOccurrences(content, "{\"title\":")];
+            for (int i = 0; i < result.Length; i++)
+                result[i] = jsonResult.videos[i].id;
+            return result;
         }
 
-    }
+        public static string[] GetNameListFromPage(int pageNumber)
+        {
+            string[] result;
+            string content = GetSource("http://api.beeg.com/api/v5/index/main/" + pageNumber + "/pc");
+            JsonBeegWebsite jsonResult = JsonConvert.DeserializeObject<JsonBeegWebsite>(content);
+            result = new string[CountStringOccurrences(content, "{\"title\":")];
+            for (int i = 0; i < result.Length; i++)
+                result[i] = jsonResult.videos[i].title;
+            return result;
+        }
 
-    public enum BeegTag
-    {
-        //TOP
-        Amateur,
-        Amazing,
-        Anal,
-        Ass,
-        Big_Tits,
-        Blowjob,
-        Casting,
-        College,
-        Creampie,
-        Cumshot,
-        Doggy,
-        European,
-        Facial,
-        Gf,
-        Horny,
-        Latina,
-        Lesbian,
-        Masturbation,
-        Milf,
-        Mom,
-        Money,
-        Natural_tits,
-        Party,
-        Reality,
-        Redhead,
-        Skinny,
-        Teen,
-        Threesome,
+        public static string[] GetNameListFromPageSearch(int pageNumber, string search)
+        {
+            string[] result;
+            string content = GetSource("http://api.beeg.com/api/v5/index/search/" + pageNumber + "/pc?query=" + search);
+            JsonBeegWebsite jsonResult = JsonConvert.DeserializeObject<JsonBeegWebsite>(content);
+            result = new string[CountStringOccurrences(content, "{\"title\":")];
+            for (int i = 0; i < result.Length; i++)
+                result[i] = jsonResult.videos[i].title;
+            return result;
+        }
 
-        //NBR
-        nbr_18,
-        nbr_19,
-        nbr_20,
-        nbr_30,
-        nbr_40,
-        nbr_50,
+        public static string[] GetNameListFromPageTag(int pageNumber, string tag)
+        {
+            string[] result;
+            string content = GetSource("http://api.beeg.com/api/v5/index/tag/" + pageNumber + "/pc?tag=" + tag);
+            JsonBeegWebsite jsonResult = JsonConvert.DeserializeObject<JsonBeegWebsite>(content);
+            result = new string[CountStringOccurrences(content, "{\"title\":")];
+            for (int i = 0; i < result.Length; i++)
+                result[i] = jsonResult.videos[i].title;
+            return result;
+        }
 
-        //OTHERS
-        Abuse,
-        Aggressive,
-        American,
-        Anal_dildo,
-        Anal_fingering,
-        Anal_fisting,
-        Anal_toy,
-        Anal_toying,
-        Anal_toys,
-        Anilingus,
-        Arab,
-        Asian,
-        Ass_lick,
-        Babe,
-        Babes,
-        Bath,
-        Bathroom,
-        Bdsm,
-        Beach,
-        Beautiful,
-        Beautiful_ass,
-        Beautiful_body,
-        Beautiful_face,
-        Beautiful_legs,
-        Beautiful_tits,
-        Bed,
-        Bedroom,
-        Bend_over,
-        Big_ass,
-        Big_cock,
-        Bikini,
-        Bisexual,
-        Black,
-        Black_cock,
-        Blonde,
-        Blondes,
-        Blue_eyes,
-        Bondage,
-        Boots,
-        Brazilian,
-        Bride,
-        British,
-        Brunette,
-        Brutal,
-        Brutal_dildo,
-        Bukkake,
-        Butt_plug,
-        Cam,
-        Camera,
-        Campus,
-        Car,
-        Cash,
-        Cfnm,
-        Chair,
-        Cheat,
-        Cheerleader,
-        Class,
-        Classic,
-        Classroom,
-        Closeup,
-        Clothes_off,
-        Club,
-        Coed,
-        Coeds,
-        College_girl,
-        College_girls,
-        Compassionate,
-        Couple,
-        Crying,
-        Cum_on_ass,
-        Cumshots,
-        Curly,
-        Cute,
-        Czech,
-        Dancing,
-        Dark,
-        Decorations,
-        Deep_throat,
-        Desk,
-        Dildo,
-        Dirty_talk,
-        Doctor,
-        Domination,
-        Domatrix,
-        Dorm,
-        Dress,
-        Ebony,
-        Education,
-        Emotion,
-        Emotional,
-        Erotic,
-        Exposing,
-        Extreme,
-        Eyes,
-        Face,
-        Facesitting,
-        Family,
-        Fashionable,
-        Fat_cock,
-        Feet,
-        Female_domination,
-        Femdom,
-        Fetish,
-        Fffm,
-        Ffm,
-        Ffmm,
-        Finger_fuck,
-        Fingering,
-        Fisting,
-        Flexible,
-        Flirty,
-        Floor,
-        Fmm,
-        Fmmm,
-        Food,
-        Foot,
-        Footjob,
-        Foursome,
-        French,
-        Fresh_girl,
-        From_behind,
-        Fucking,
-        Fun,
-        Gangbang,
-        German,
-        Girlfriend,
-        Give_head,
-        Gives_head,
-        Giving_head,
-        Glamour,
-        Glasses,
-        Glory_hole,
-        Gorgeous,
-        Granny,
-        Green_eyes,
-        Grey_eyes,
-        Group,
-        Hairstyle,
-        Hairy,
-        Handcuffs,
-        Handjob,
-        Hard_cock,
-        Hardcore,
-        Harder,
-        Head,
-        Heel,
-        Heels,
-        Hidden_cam,
-        Home_video,
-        Homemade,
-        Hospital,
-        Hotel,
-        Housewife,
-        Humiliation,
-        Hungarian,
-        In_clothes,
-        Indian,
-        Innocent,
-        Interracial,
-        Interview,
-        Italian,
-        Japanese,
-        Jeans,
-        Kiss,
-        Kitchen,
-        Lady,
-        Latex,
-        Latin,
-        Legs,
-        Lesbians,
-        Lick,
-        Lingerie,
-        Location,
-        Long_hair,
-        Long_legs,
-        Long_videos,
-        Maid,
-        Male_strip,
-        Male_teacher,
-        Massage,
-        Mature,
-        Medical,
-        Mexican,
-        Mini,
-        Missionary,
-        Mistress,
-        Moan,
-        Model,
-        Mother,
-        Natural,
-        New_face,
-        New_teen,
-        Newbie,
-        Next_door,
-        Nude,
-        Nun,
-        Nurse,
-        Nylon,
-        Observe,
-        Office,
-        Office_girl,
-        Oiled,
-        Old_man,
-        Old_young,
-        Orgasm,
-        Orgy,
-        Oriental,
-        Outdoor,
-        Panties,
-        Pantyhose,
-        Park,
-        Peeing,
-        Penetration,
-        Perfect_ass,
-        Perfect_body,
-        Perfect_tits,
-        Perky_tits,
-        Petite,
-        Piercing,
-        Pigtails,
-        Pink,
-        Pissing,
-        Plump,
-        Pool,
-        Pornstar,
-        Pornstars,
-        Posing,
-        Pov,
-        Povs,
-        Pregnant,
-        Pretty,
-        Public,
-        Punishment,
-        Pussy,
-        Pussy_cumshot,
-        Quickie,
-        Real,
-        Retro,
-        Riding,
-        Role,
-        Romantic,
-        Roommate,
-        Rough,
-        Russian,
-        Scene,
-        School,
-        Schoolgirl,
-        Scream,
-        Secretary,
-        Seduction,
-        Sex,
-        Shaved,
-        Shaving,
-        Shemale,
-        Short_hose,
-        Shower,
-        Showering,
-        Showers,
-        Showing,
-        Shy,
-        Sister,
-        Skirt,
-        Slave,
-        Sleep,
-        Slow,
-        Small_tits,
-        Smoke,
-        Socks,
-        Sofa,
-        Solo,
-        Spanish,
-        Spanking,
-        Spontaneous,
-        Sporty,
-        Spreading,
-        Squirt,
-        Standing,
-        Starlet,
-        Stepdaughter,
-        Stepmom,
-        Stockings,
-        Strapon,
-        Stretching,
-        Strip,
-        Student,
-        Stupid,
-        Stylish,
-        Submission,
-        Submissive,
-        Smallow,
-        Swedish,
-        Sweet,
-        Swinger,
-        Table,
-        Tables,
-        Tall,
-        Tanned,
-        Tattoo,
-        Teacher,
-        Tease,
-        Teasing,
-        Teen_sex,
-        Tied,
-        Tight,
-        Tight_body,
-        Tits_cumshot,
-        Tits_fuck,
-        Toilet,
-        Toy,
-        Transexual,
-        Turkish,
-        Undressing,
-        Uniform,
-        Unusual,
-        Upskirt,
-        Vintage,
-        Virgin,
-        Voyeur,
-        Water,
-        Webcam,
-        Wet,
-        White,
-        Whites,
-        Wife,
-        Work,
-        Wrong,
-        Young,
-        Young_couple
-    }
+        public static string[] GetPopularTags()
+        {
+            string content = GetSource("http://api.beeg.com/api/v5/index/search/0/pc?query=apiusage");
+            JsonBeegWebsite jsonResult = JsonConvert.DeserializeObject<JsonBeegWebsite>(content);
+            return jsonResult.tags.popular;
+        }
+
+        public static string[] GetNonPopularTags()
+        {
+            string content = GetSource("http://api.beeg.com/api/v5/index/search/0/pc?query=apiusage");
+            JsonBeegWebsite jsonResult = JsonConvert.DeserializeObject<JsonBeegWebsite>(content);
+            return jsonResult.tags.nonpopular;
+        }
+
+        static string GetSource(string url)
+        {
+            string content = "";
+            using (WebClient wc = new WebClient())
+            {
+                wc.Proxy = null;
+                content = wc.DownloadString(url
+                    .Replace("\"720p\":", "\"p720\":")
+                    .Replace("\"480p\":", "\"p480\":")
+                    .Replace("\"240p\":", "\"p240\":"));
+            }
+            return content;
+        }
+
+        static int CountStringOccurrences(string text, string pattern)
+        {
+            int count = 0;
+            int i = 0;
+            while ((i = text.IndexOf(pattern, i)) != -1)
+            {
+                i += pattern.Length;
+                count++;
+            }
+            return count;
+        }
+    }    
 }

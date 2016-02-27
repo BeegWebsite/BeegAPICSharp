@@ -6,34 +6,34 @@ namespace BeegAPI
 {
     public class BeegVideoDownloader
     {
-        private string ID;
+        string ID;
 
-        private WebClient client;
+        WebClient client;
 
         public event DownloadProgressChangedEventHandler downloadProgress;
         public event AsyncCompletedEventHandler downloadFinish;
 
-        private BeegVideo video;
+        BeegVideo video;
 
-        private int percentage, nperc;
+        int percentage, nperc;
 
         public BeegVideoDownloader(BeegVideo video)
         {
             this.video = video;
-            ID = this.video.getID();
-            load();
+            ID = this.video.GetID();
+            Load();
         }
 
-        public BeegVideoDownloader(String ID)
+        public BeegVideoDownloader(string ID)
         {
             this.ID = ID;
             video = new BeegVideo(ID);
-            load();
+            Load();
         }
 
-        private void load()
+        private void Load()
         {
-            video.load();
+            video.Load();
             client = new WebClient();
             client.Proxy = null;
             downloadFinish = null;
@@ -47,24 +47,24 @@ namespace BeegAPI
             return video;
         }
 
-        public void download(String path, BeegVideo.BeegQuality quality)
-        {
-            if(!client.IsBusy)
-                client.DownloadFileAsync(new Uri(video.getURL(quality)), path + "/" + ID + ".mp4");
-        }
-
-        public void download(String path, String name, BeegVideo.BeegQuality quality)
+        public void Download(string path, BeegVideo.BeegQuality quality)
         {
             if (!client.IsBusy)
-                client.DownloadFileAsync(new Uri(video.getURL(quality)), path + "/" + name + ".mp4");
+                client.DownloadFileAsync(new Uri(video.GetURL(quality)), path + "/" + ID + ".mp4");
         }
 
-        public String getID()
+        public void Download(string path, string name, BeegVideo.BeegQuality quality)
+        {
+            if (!client.IsBusy)
+                client.DownloadFileAsync(new Uri(video.GetURL(quality)), path + "/" + name + ".mp4");
+        }
+
+        public string GetID()
         {
             return ID;
         }
 
-        private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
             if (downloadProgress != null)
             {
@@ -77,9 +77,9 @@ namespace BeegAPI
             }
         }
 
-        private void Completed(object sender, AsyncCompletedEventArgs e)
+        void Completed(object sender, AsyncCompletedEventArgs e)
         {
-            if(downloadFinish != null)
+            if (downloadFinish != null)
                 downloadFinish.Invoke(sender, e);
         }
 
